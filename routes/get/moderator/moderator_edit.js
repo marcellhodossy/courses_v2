@@ -3,10 +3,10 @@ const router = express.Router();
 const pg = require('pg');
 const {
     verifyJWT
-} = require('../../../nodejs/config/jsonwebtoken.js');
+} = require('../../../config/jsonwebtoken.js');
 const {
     pool
-} = require('../../../nodejs/config/postgresql.js');
+} = require('../../../config/postgresql.js');
 
 router.get('/moderator/course/:id/edit', async (req, res) => {
 
@@ -24,6 +24,7 @@ router.get('/moderator/course/:id/edit', async (req, res) => {
             const codes = await pool.query('SELECT * FROM course_codes WHERE course_id = $1 AND active = true', [data.rows[0].id]);
             const reviews = await pool.query('SELECT r.*, u.username FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.course_id = $1', [data.rows[0].id]);
             const members = await pool.query('SELECT c.id AS member_id, c.*, u.username AS username FROM courses c JOIN users u ON c.user_id = u.id WHERE c.course_id = $1', [data.rows[0].id]);
+const posts = await pool.query('SELECT posts.*, users.username FROM posts JOIN users ON users.id = posts.user_id WHERE posts.course_id = $1', [id]);            
             var code = [];
 
             for (let i = 0; i < codes.rows.length; i++) {
@@ -66,6 +67,17 @@ router.get('/moderator/course/:id/edit', async (req, res) => {
 
             }
 
+            var posts_list = [];
+
+            for(let i = 0; i < posts.rows.length; i++) {
+                posts_list[i] = {
+                    title: posts.rows[i].title,
+                    text: posts.rows[i].text,
+                    id: posts.rows[i].id,
+                    date: posts.rows[i].date,
+                    author: posts.rows[i].username
+              }
+            }
 
             res.render('moderator/moderator_edit.ejs', {
                 course_name: data.rows[0].name,
@@ -74,6 +86,7 @@ router.get('/moderator/course/:id/edit', async (req, res) => {
                 codes: code,
                 reviews: reviews_list,
                 members: members_list,
+                posts: posts_list,
                 start_page: start_page,
                 error: req.session.error,
                 success: req.session.success

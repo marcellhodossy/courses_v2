@@ -2,14 +2,14 @@ const express = require("express");
 const router = express.Router();
 const {
     transporter
-} = require("../../../nodejs/config/email.js");
+} = require("../../../config/email.js");
 const {
     pool
-} = require("../../../nodejs/config/postgresql.js");
+} = require("../../../config/postgresql.js");
 const pg = require("pg");
 const {
     createJWT
-} = require("../../../nodejs/config/jsonwebtoken.js");
+} = require("../../../config/jsonwebtoken.js");
 
 function verifyMail(content) {
     const emailRegex = /^[a-zA-Z0-9._%\-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

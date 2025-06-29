@@ -1,223 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Slack Course - Edit Course</title>
+    <title>Slack Course - <%= course_name %></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SimpleMDE -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 </head>
+<body class="bg-gray-100 min-h-screen p-6 flex flex-col items-center">
 
-<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
-    <% if (error) { %>
-    <div class="w-full max-w-4xl mb-4 px-4 py-3 rounded bg-red-100 border border-red-400 text-red-700">
-        <span class="block sm:inline"><%= error %></span>
-    </div>
-    <% } %>
-
-    <% if (success) { %>
-    <div class="w-full max-w-4xl mb-4 px-4 py-3 rounded bg-green-100 border border-green-400 text-green-700">
-        <span class="block sm:inline"><%= success %></span>
-    </div>
-    <% } %>
-    <!-- Course Info -->
-    <header class="w-full max-w-4xl mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Course: <%= course_name %></h1>
-        <p class="text-gray-600"><%= descriptions %></p>
+    <header class="w-full max-w-3xl mb-8 text-center">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2"><%= course_name %></h1>
+        <p class="text-gray-500">Course ID: <%= course_id %></p>
     </header>
 
-    <!-- Navigation Buttons -->
-    <nav class="w-full max-w-4xl mb-6 flex gap-4">
-        <button onclick="ChangeMenu('codes')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
-            Code Management
-        </button>
-        <button onclick="ChangeMenu('reviews')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
-            Reviews Control
-        </button>
-        <button onclick="ChangeMenu('members')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
-            Members Management
-        </button>
-        <button onclick="ChangeMenu('post')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
-            Create Post
-        </button>
-        <button onclick="ChangeMenu('manage')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
-            Manage Posts
-        </button>
-    </nav>
+    <% if (posts.length > 0) { %>
+    <section class="w-full max-w-3xl space-y-10">
+        <% for (let i = 0; i < posts.length; i++) { %>
+        <article class="relative bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-2"><%= posts[i].title %></h2>
 
-    <!-- Main content container -->
-    <main class="w-full max-w-4xl space-y-10">
+            <!-- Read-only Markdown -->
+            <textarea id="mde-<%= i %>" class="hidden"><%= posts[i].text %></textarea>
+            <div id="mde-container-<%= i %>" class="mt-4"></div>
 
-        <!-- Codes Section -->
-        <section id="codes" class="bg-white p-6 rounded-lg shadow-md space-y-6">
-            <h2 class="text-2xl font-semibold text-gray-800">Generate Invite Code</h2>
-
-            <form action="/moderator/course/<%= course_id %>/generate_code" method="post" class="space-y-4">
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" name="lifetime" id="lifetime" class="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
-                    <label for="lifetime" class="text-gray-700">Should it be valid forever?</label>
-                </div>
-                <input type="submit" value="Generate Code" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition cursor-pointer" />
-            </form>
-
-            <div>
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Your Codes</h3>
-
-                <% if (codes.length > 0) { %>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white border border-gray-200 rounded">
-                        <thead class="bg-gray-100 text-gray-700 text-left">
-                            <tr>
-                                <th class="px-4 py-2 border-b">Code</th>
-                                <th class="px-4 py-2 border-b">Type</th>
-                                <th class="px-4 py-2 border-b">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% for(let i = 0; i < codes.length; i++) { %>
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-2 border-b text-gray-800"><%= codes[i].code %></td>
-                                <td class="px-4 py-2 border-b text-gray-600"><%= codes[i].type %></td>
-                                <td class="px-4 py-2 border-b text-gray-600"><a href="/moderator/course/<%= course_id %>/unactive?id=<%= codes[i].id %>">Unactive</a></td>
-                            </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                </div>
-                <% } else { %>
-                <p class="text-gray-500 italic">You don't have any codes yet.</p>
-                <% } %>
+            <div class="flex justify-between text-sm text-gray-500 mt-4">
+                <span>Author: <%= posts[i].author %></span>
+                <span><%= posts[i].date %></span>
             </div>
-        </section>
 
-        <!-- Reviews Section -->
-        <section id="reviews" class="bg-white p-6 rounded-lg shadow-md space-y-6">
-            <h2 class="text-2xl font-semibold text-gray-800">Reviews</h2>
+            <!-- Red button top right -->
+            <button class="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                Action
+            </button>
 
-            <% if (reviews.length > 0) { %>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border border-gray-200 rounded">
-                    <thead class="bg-gray-100 text-gray-700 text-left">
-                        <tr>
-                            <th class="px-4 py-2 border-b">Reviewer Name</th>
-                            <th class="px-4 py-2 border-b">Date</th>
-                            <th class="px-4 py-2 border-b text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% for (let i = 0; i < reviews.length; i++) { %>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-2 border-b text-gray-800"><%= reviews[i].name %></td>
-                            <td class="px-4 py-2 border-b text-gray-600"><%= reviews[i].date %></td>
-                            <td class="px-4 py-2 border-b text-center space-x-2">
-                                <a href="/moderator/course/<%= course_id %>/managment?reviews_id=<%= reviews[i].id %>&choice=accept" class="text-green-600 hover:underline font-medium">Accept</a>
-                                <a href="/moderator/course/<%= course_id %>/managment?reviews_id=<%= reviews[i].id %>&choice=deny" class="text-red-600 hover:underline font-medium">Deny</a>
-                            </td>
-                        </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-            <% } else { %>
-            <p class="text-gray-500 italic">There is no one currently under review.</p>
-            <% } %>
-        </section>
+            <script>
+                const simplemde<%= i %> = new SimpleMDE({
+                    element: document.getElementById("mde-<%= i %>"),
+                    toolbar: false,
+                    status: false,
+                    spellChecker: false,
+                    autofocus: false,
+                    renderingConfig: {
+                        singleLineBreaks: false,
+                        codeSyntaxHighlighting: true,
+                    },
+                });
 
-        <!-- Members Section -->
-        <section id="members" class="bg-white p-6 rounded-lg shadow-md space-y-6">
-            <h2 class="text-2xl font-semibold text-gray-800">Course Members</h2>
-
-            <% if (members.length > 0) { %>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border border-gray-200 rounded">
-                    <thead class="bg-gray-100 text-gray-700 text-left">
-                        <tr>
-                            <th class="px-4 py-2 border-b">Member Name</th>
-                            <th class="px-4 py-2 border-b">Join Date</th>
-                            <th class="px-4 py-2 border-b text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% for (let i = 0; i < members.length; i++) { %>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-2 border-b text-gray-800"><%= members[i].name %></td>
-                            <td class="px-4 py-2 border-b text-gray-600"><%= members[i].join_date %></td>
-                            <td class="px-4 py-2 border-b text-center">
-                                <a href="/moderator/course/<%= course_id %>/kick?id=<%= members[i].id %>" class="text-red-600 hover:underline font-medium">Kick</a>
-                            </td>
-                        </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-            <% } else { %>
-            <p class="text-gray-500 italic">No members have joined this course yet.</p>
-            <% } %>
-        </section>
-
-        <!-- Post Creation Section -->
-        <div class="w-full max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md mt-10" id="post">
-            <form action="/moderator/course/<%= course_id %>/addpost" method="POST" id="post-form" novalidate class="space-y-4">
-                <div>
-                    <label for="title" class="block text-gray-700 font-medium mb-1">Title:</label>
-                    <input type="text" id="title" name="title" required class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                </div>
-
-                <div>
-                    <label for="text" class="block text-gray-700 font-medium mb-1">Text:</label>
-                    <textarea name="text" id="text" rows="6" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                </div>
-
-                <div>
-                    <input type="submit" value="Create Post" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition cursor-pointer" />
-                </div>
-            </form>
-        </div>
-
-    </main>
+                // Render content into div instead of editor UI
+                document.getElementById("mde-container-<%= i %>").innerHTML = simplemde<%= i %>.options.previewRender(simplemde<%= i %>.value());
+            </script>
+        </article>
+        <% } %>
+    </section>
+    <% } else { %>
+    <p class="text-gray-600 text-lg italic mt-10">There are no posts available.</p>
+    <% } %>
 
 </body>
-
-<script>
-    var simplemde = new SimpleMDE({
-        element: document.getElementById("text")
-    });
-
-    document.getElementById("post-form").addEventListener("submit", function(e) {
-        // Átadjuk a SimpleMDE tartalmát a textarea-nak
-        document.getElementById("text").value = simplemde.value();
-
-        // Manuális validáció, mert az eredeti textarea el van rejtve
-        if (!simplemde.value().trim()) {
-            e.preventDefault();
-            alert("Please enter some text.");
-            simplemde.codemirror.focus();
-        }
-    });
-
-    const start_page = "<%= start_page %>";
-
-    // Először mindet elrejtjük
-    document.getElementById("codes").hidden = true;
-    document.getElementById("reviews").hidden = true;
-    document.getElementById("members").hidden = true;
-    document.getElementById("post").hidden = true;
-
-    if (document.getElementById(start_page)) {
-        document.getElementById(start_page).hidden = false;
-    }
-
-    function ChangeMenu(page) {
-        document.getElementById("codes").hidden = true;
-        document.getElementById("reviews").hidden = true;
-        document.getElementById("members").hidden = true;
-        document.getElementById("post").hidden = true;
-        if (document.getElementById(page)) {
-            document.getElementById(page).hidden = false;
-        }
-    }
-</script>
-
 </html>

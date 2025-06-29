@@ -3,10 +3,10 @@ const router = express.Router();
 const pg = require('pg');
 const {
     verifyJWT
-} = require('../../../nodejs/config/jsonwebtoken');
+} = require('../../../config/jsonwebtoken');
 const {
     pool
-} = require('../../../nodejs/config/postgresql');
+} = require('../../../config/postgresql');
 
 router.get('/moderator/course/:id/kick', async (req, res) => {
 
@@ -28,7 +28,8 @@ router.get('/moderator/course/:id/kick', async (req, res) => {
 
         } else {
             req.session.error = "You do not have moderator rights for this course.";
-        }
+            req.session.save();
+            res.redirect('/moderator/dashboard');        }
 
     } else {
         res.clearCookie("isAuth");

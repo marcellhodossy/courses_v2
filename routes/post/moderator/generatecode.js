@@ -3,10 +3,10 @@ const router = express.Router();
 const pg = require('pg');
 const {
     verifyJWT
-} = require('../../../nodejs/config/jsonwebtoken');
+} = require('../../../config/jsonwebtoken');
 const {
     pool
-} = require('../../../nodejs/config/postgresql');
+} = require('../../../config/postgresql');
 
 function generateCode(length = 10) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

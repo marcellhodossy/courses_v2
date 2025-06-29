@@ -3,10 +3,10 @@ const router = express.Router();
 const pg = require('pg');
 const {
     pool
-} = require('../../../nodejs/config/postgresql.js');
+} = require('../../../config/postgresql.js');
 const {
     hashPassword
-} = require('../../../nodejs/config/argon2.js');
+} = require('../../../config/argon2.js');
 
 function verifyMail(content) {
     const emailRegex = /^[a-zA-Z0-9._%\-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

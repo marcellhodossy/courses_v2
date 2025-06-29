@@ -3,13 +3,13 @@ const router = express.Router();
 const pg = require("pg");
 const {
     pool
-} = require("../../../nodejs/config/postgresql.js");
+} = require("../../../config/postgresql.js");
 const {
     verifyJWT
-} = require("../../../nodejs/config/jsonwebtoken.js");
+} = require("../../../config/jsonwebtoken.js");
 const {
     hashPassword
-} = require("../../../nodejs/config/argon2.js");
+} = require("../../../config/argon2.js");
 
 router.post("/password/reset/", async (req, res) => {
 

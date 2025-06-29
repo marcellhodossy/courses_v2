@@ -10,7 +10,7 @@ const CookieParser = require('cookie-parser');
 
 const {
     pool
-} = require("./nodejs/config/postgresql.js");
+} = require("./config/postgresql.js");
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -49,6 +49,11 @@ const editcourse = require('./routes/get/moderator/moderator_edit.js');
 const moderator_managment = require('./routes/get/moderator/managment.js');
 const moderator_unactive = require('./routes/get/moderator/unactive.js');
 const moderator_kick = require('./routes/get/moderator/kick.js');
+const moderator_delete = require('./routes/get/moderator/delete.js');
+const moderator_edit = require('./routes/get/moderator/edit.js');
+const users_posts = require('./routes/get/users/user_course.js');
+const users_leave = require('./routes/get/users/leave.js');
+const selector = require('./routes/get/selector.js');
 
 const loginRoutes = require('./routes/post/default_auth/login.js');
 const registerRoutes = require('./routes/post/default_auth/register.js');
@@ -58,6 +63,7 @@ const joinPrivateRoutes = require('./routes/post/users/private_course.js');
 const createCourses = require('./routes/post/moderator/create.js');
 const generateCode = require('./routes/post/moderator/generatecode.js');
 const newpost = require('./routes/post/moderator/addpost.js');
+const moderator_editpost = require('./routes/post/moderator/edit_post.js');
 
 
 app.use(login);
@@ -75,6 +81,11 @@ app.use(editcourse);
 app.use(moderator_managment);
 app.use(moderator_unactive);
 app.use(moderator_kick);
+app.use(moderator_delete);
+app.use(moderator_edit);
+app.use(users_posts);
+app.use(users_leave);
+app.use(selector);
 
 app.use(loginRoutes);
 app.use(registerRoutes);
@@ -84,6 +95,7 @@ app.use(joinPrivateRoutes);
 app.use(createCourses);
 app.use(generateCode);
 app.use(newpost);
+app.use(moderator_editpost);
 
 app.listen(process.env.PORT, () => {
     console.log(`server listened: localhost:${process.env.PORT}`);

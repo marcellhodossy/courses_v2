@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit Post - Slack Course</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+  <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+<a href="/moderator/course/<%= course_id %>/edit" 
+   class="absolute top-4 left-4 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded shadow-sm transition">
+  ← Back
+</a>
+
+  <main class="w-full max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Edit Post</h1>
+
+    <form action="/moderator/course/<%= course_id %>/posts/edit" method="POST" id="edit-post-form" class="space-y-4">
+      <input type="hidden" name="id" value="<%= id %>">
+
+      <div>
+        <label for="title" class="block text-gray-700 font-medium mb-1">Title</label>
+        <input type="text" id="title" name="title" value="<%= title %>" required
+          class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+
+      <div>
+        <label for="text" class="block text-gray-700 font-medium mb-1">Text</label>
+        <textarea id="text" name="text" rows="10"
+          class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><%= text %></textarea>
+      </div>
+
+      <div>
+        <input type="submit" value="Update Post"
+          class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition cursor-pointer" />
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const simplemde = new SimpleMDE({ element: document.getElementById("text") });
+
+    document.getElementById("edit-post-form").addEventListener("submit", function (e) {
+      document.getElementById("text").value = simplemde.value();
+
+      if (!simplemde.value().trim()) {
+        e.preventDefault();
+        alert("Please enter some content.");
+        simplemde.codemirror.focus();
+      }
+    });
+  </script>
+</body>
+
+</html>

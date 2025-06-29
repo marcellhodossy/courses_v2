@@ -3,11 +3,11 @@ const router = express.Router();
 const {
     verifyJWT,
     createJWT
-} = require('../../../nodejs/config/jsonwebtoken.js');
+} = require('../../../config/jsonwebtoken.js');
 const pg = require('pg');
 const {
     pool
-} = require('../../../nodejs/config/postgresql.js');
+} = require('../../../config/postgresql.js');
 
 router.get('/register/verify', async (req, res) => {
 

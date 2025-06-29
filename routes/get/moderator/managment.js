@@ -3,13 +3,13 @@ const router = express.Router();
 const pg = require('pg');
 const {
     verifyJWT
-} = require('../../../nodejs/config/jsonwebtoken.js');
+} = require('../../../config/jsonwebtoken.js');
 const {
     pool
-} = require('../../../nodejs/config/postgresql.js');
+} = require('../../../config/postgresql.js');
 const {
     transporter
-} = require('../../../nodejs/config/email.js');
+} = require('../../../config/email.js');
 
 router.get('/moderator/course/:id/managment', async (req, res) => {
 

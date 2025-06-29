@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const {
     pool
-} = require("../../../nodejs/config/postgresql.js");
+} = require("../../../config/postgresql.js");
 const pg = require("pg");
 const {
     verifyJWT
-} = require("../../../nodejs/config/jsonwebtoken.js");
+} = require("../../../config/jsonwebtoken.js");
 
 router.get("/users/dashboard", async (req, res) => {
 

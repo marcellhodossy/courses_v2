@@ -3,7 +3,7 @@ const router = express.Router();
 const pg = require('pg');
 const {
     verifyJWT
-} = require('../../../nodejs/config/jsonwebtoken.js');
+} = require('../../../config/jsonwebtoken.js');
 
 router.get("/password/reset/", async (req, res) => {
 

@@ -2,15 +2,15 @@ const express = require('express');
 const router = express.Router();
 const {
     pool
-} = require('../../../nodejs/config/postgresql.js');
+} = require('../../../config/postgresql.js');
 const pg = require('pg');
 const {
     verifyPassword,
     hashPassword
-} = require('../../../nodejs/config/argon2.js');
+} = require('../../../config/argon2.js');
 const {
     createJWT
-} = require('../../../nodejs/config/jsonwebtoken.js');
+} = require('../../../config/jsonwebtoken.js');
 
 function verifyMail(content) {
     const emailRegex = /^[a-zA-Z0-9._%\-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

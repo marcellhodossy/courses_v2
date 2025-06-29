@@ -3,10 +3,10 @@ const router = express.Router();
 const pg = require('pg');
 const {
     transporter
-} = require('../../../nodejs/config/email.js')
+} = require('../../../config/email.js')
 const {
     createJWT
-} = require('../../../nodejs/config/jsonwebtoken.js');
+} = require('../../../config/jsonwebtoken.js');
 
 router.get('/register/resend', async (req, res) => {
 

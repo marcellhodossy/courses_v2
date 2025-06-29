@@ -3,10 +3,10 @@ const router = express.Router();
 const pg = require('pg');
 const {
     pool
-} = require('../../../nodejs/config/postgresql');
+} = require('../../../config/postgresql');
 const {
     verifyJWT
-} = require('../../../nodejs/config/jsonwebtoken');
+} = require('../../../config/jsonwebtoken');
 
 router.post('/moderator/course/create', async (req, res) => {
 
