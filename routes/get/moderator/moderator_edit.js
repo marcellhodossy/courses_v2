@@ -92,8 +92,8 @@ router.get('/moderator/course/:id/edit', async (req, res) => {
                 start_page: start_page,
                 error: req.session.error,
                 success: req.session.success,
-                seen: false,
-                approved: true
+                seen: data.rows[0].seen,
+                approved: data.rows[0].approved
             });
 
 
