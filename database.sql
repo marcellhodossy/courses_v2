@@ -1,5 +1,5 @@
 CREATE TABLE course_codes (
-  id integer NOT NULL DEFAULT nextval('course_codes_id_seq'::regclass),
+  id serial primary key,
   code text NOT NULL,
   course_id integer NOT NULL,
   lifetime boolean NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE course_codes (
 );
 
 CREATE TABLE course_list (
-  id integer NOT NULL DEFAULT nextval('course_list_id_seq'::regclass),
+  id serial primary key,
   name text NOT NULL,
   descriptions text NOT NULL,
   seen boolean NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE course_list (
 );
 
 CREATE TABLE courses (
-  id integer NOT NULL DEFAULT nextval('courses_id_seq'::regclass),
+  id serial primary key,
   course_id integer NOT NULL,
   user_id integer NOT NULL,
   type integer NOT NULL DEFAULT 1,
@@ -24,7 +24,7 @@ CREATE TABLE courses (
 );
 
 CREATE TABLE posts (
-  id integer NOT NULL DEFAULT nextval('posts_id_seq'::regclass),
+  id serial primary key,
   course_id integer NOT NULL,
   user_id integer NOT NULL,
   title text NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE posts (
 );
 
 CREATE TABLE reviews (
-  id integer NOT NULL DEFAULT nextval('reviews_id_seq'::regclass),
+  id serial primary key,
   user_id integer NOT NULL,
   course_id integer NOT NULL,
   date timestamp with time zone DEFAULT now()
@@ -46,7 +46,7 @@ CREATE TABLE session (
 );
 
 CREATE TABLE users (
-  id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+  id serial primary key,
   email character varying,
   username character varying NOT NULL,
   password character varying NOT NULL,
