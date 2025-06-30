@@ -5,7 +5,7 @@ router.get('/register', (req, res) => {
 
 
     if (req.cookies.token && req.cookies.isAuth === "true") {
-        res.redirect('/dashboard');
+        res.redirect('/selector');
     } else {
         res.render('default_auth/register.ejs', {
             error: req.session.error

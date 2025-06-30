@@ -8,7 +8,7 @@ const {
     pool
 } = require('../../../config/postgresql');
 
-router.get('/moderator/course/:id/kick', async (req, res) => {
+router.get('/moderator/course/:id/demote', async (req, res) => {
 
 
     const decoded = await verifyJWT(req.cookies.token);
@@ -21,8 +21,8 @@ router.get('/moderator/course/:id/kick', async (req, res) => {
 
         if (check.rows.length > 0) {
 
-            await pool.query("DELETE FROM courses WHERE user_id = $1 AND course_id = $2 AND type = 1", [user_id, id]);
-            req.session.success = "The user has been successfully kicked.";
+            await pool.query("UPDATE courses SET type = 1 WHERE user_id = $1 AND course_id = $2", [user_id, id]);
+            req.session.success = "The user has been successfully demoted.";
             req.session.save();
             res.redirect(`/moderator/course/${id}/edit?start=members`);
 

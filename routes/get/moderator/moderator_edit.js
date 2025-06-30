@@ -23,8 +23,8 @@ router.get('/moderator/course/:id/edit', async (req, res) => {
             const data = await pool.query('SELECT * FROM course_list WHERE id = $1', [id]);
             const codes = await pool.query('SELECT * FROM course_codes WHERE course_id = $1 AND active = true', [data.rows[0].id]);
             const reviews = await pool.query('SELECT r.*, u.username FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.course_id = $1', [data.rows[0].id]);
-            const members = await pool.query('SELECT c.id AS member_id, c.*, u.username AS username FROM courses c JOIN users u ON c.user_id = u.id WHERE c.course_id = $1', [data.rows[0].id]);
-const posts = await pool.query('SELECT posts.*, users.username FROM posts JOIN users ON users.id = posts.user_id WHERE posts.course_id = $1', [id]);            
+            const members = await pool.query('SELECT c.id AS member_id, c.*, u.id AS user_id, u.username AS username FROM courses c JOIN users u ON c.user_id = u.id WHERE c.course_id = $1', [data.rows[0].id]);
+            const posts = await pool.query('SELECT posts.*, users.username FROM posts JOIN users ON users.id = posts.user_id WHERE posts.course_id = $1', [id]);
             var code = [];
 
             for (let i = 0; i < codes.rows.length; i++) {
@@ -62,21 +62,22 @@ const posts = await pool.query('SELECT posts.*, users.username FROM posts JOIN u
                 members_list[i] = {
                     name: members.rows[i].username,
                     join_date: members.rows[i].logged,
-                    id: members.rows[i].id
+                    id: members.rows[i].user_id,
+                    type: members.rows[i].type
                 };
 
             }
 
             var posts_list = [];
 
-            for(let i = 0; i < posts.rows.length; i++) {
+            for (let i = 0; i < posts.rows.length; i++) {
                 posts_list[i] = {
                     title: posts.rows[i].title,
                     text: posts.rows[i].text,
                     id: posts.rows[i].id,
                     date: posts.rows[i].date,
                     author: posts.rows[i].username
-              }
+                }
             }
 
             res.render('moderator/moderator_edit.ejs', {
@@ -86,11 +87,15 @@ const posts = await pool.query('SELECT posts.*, users.username FROM posts JOIN u
                 codes: code,
                 reviews: reviews_list,
                 members: members_list,
+                user_id: decoded.id,
                 posts: posts_list,
                 start_page: start_page,
                 error: req.session.error,
-                success: req.session.success
+                success: req.session.success,
+                seen: false,
+                approved: true
             });
+
 
             req.session.error = null;
             req.session.success = null;

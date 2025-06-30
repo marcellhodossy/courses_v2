@@ -5,7 +5,7 @@ router.get('/login', (req, res) => {
 
 
     if (req.cookies.token && req.cookies.isAuth === 'true') {
-        res.redirect('/users/dashboard');
+        res.redirect('/selector');
     } else {
         res.render('default_auth/login.ejs', {
             error: req.session.error

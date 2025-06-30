@@ -26,6 +26,7 @@ router.get('/moderator/course/:id/managment', async (req, res) => {
         if (check.rows.length > 0) {
 
             const review_data = await pool.query("SELECT * FROM reviews WHERE id = $1", [reviews_id]);
+            console.log(review_data);
             const user_data = await pool.query("SELECT * FROM users WHERE id = $1", [review_data.rows[0].user_id]);
 
             if (choice === "deny") {
@@ -48,11 +49,19 @@ router.get('/moderator/course/:id/managment', async (req, res) => {
                     from: process.env.SMTP_USERNAME,
                     to: user_data.rows[0].email,
                     subject: 'Review Status',
-                    html: "<h1>Review Status</h1></br><h3>Your reviews is accepted.</h3>"
+                    html: "<h1>Review Status</h1></br><h3>Your review is accepted.</h3>"
                 };
-                await pool.query("DELETE FROM reviews WHERE id = $1", [reviews_id]);
-                await pool.query("INSERT INTO courses (course_id, user_id, type) VALUES ($1,$2,$3)", [id, user_data.rows[0].id, 1]);
-                await transporter.sendMail(mailOptions);
+
+                const check_3 = await pool.query("SELECT * FROM courses WHERE course_id = $1 AND user_id = $2", [id, user_data.rows[0].id]);
+
+                if (check_3.rows.length > 0) {
+                    res.redirect(`/moderator/course/${id}/edit?start=reviews`);
+                } else {
+
+                    await pool.query("DELETE FROM reviews WHERE id = $1", [reviews_id]);
+                    await pool.query("INSERT INTO courses (course_id, user_id, type) VALUES ($1,$2,$3)", [id, user_data.rows[0].id, 1]);
+                    await transporter.sendMail(mailOptions);
+                }
 
                 req.session.success = "The review has been successfully accepted.";
                 req.session.save();

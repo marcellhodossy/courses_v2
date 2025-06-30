@@ -1,64 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Slack Course - <%= course_name %></title>
+    <title>Slack Course - Edit Course</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- SimpleMDE -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css" />
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen p-6 flex flex-col items-center">
 
-    <header class="w-full max-w-3xl mb-8 text-center">
-        <h1 class="text-4xl font-bold text-gray-800 mb-2"><%= course_name %></h1>
-        <p class="text-gray-500">Course ID: <%= course_id %></p>
-    </header>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-4 sm:p-6">
 
-    <% if (posts.length > 0) { %>
-    <section class="w-full max-w-3xl space-y-10">
-        <% for (let i = 0; i < posts.length; i++) { %>
-        <article class="relative bg-white p-6 rounded-lg shadow">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-2"><%= posts[i].title %></h2>
+    <a href="/selector" class="absolute top-4 left-4 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded shadow-sm transition z-10">
+        ← Back
+    </a>
 
-            <!-- Read-only Markdown -->
-            <textarea id="mde-<%= i %>" class="hidden"><%= posts[i].text %></textarea>
-            <div id="mde-container-<%= i %>" class="mt-4"></div>
-
-            <div class="flex justify-between text-sm text-gray-500 mt-4">
-                <span>Author: <%= posts[i].author %></span>
-                <span><%= posts[i].date %></span>
-            </div>
-
-            <!-- Red button top right -->
-            <button class="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
-                Action
-            </button>
-
-            <script>
-                const simplemde<%= i %> = new SimpleMDE({
-                    element: document.getElementById("mde-<%= i %>"),
-                    toolbar: false,
-                    status: false,
-                    spellChecker: false,
-                    autofocus: false,
-                    renderingConfig: {
-                        singleLineBreaks: false,
-                        codeSyntaxHighlighting: true,
-                    },
-                });
-
-                // Render content into div instead of editor UI
-                document.getElementById("mde-container-<%= i %>").innerHTML = simplemde<%= i %>.options.previewRender(simplemde<%= i %>.value());
-            </script>
-        </article>
-        <% } %>
-    </section>
-    <% } else { %>
-    <p class="text-gray-600 text-lg italic mt-10">There are no posts available.</p>
+    <% if (error) { %>
+    <div class="w-full max-w-4xl mb-4 px-4 py-3 rounded bg-red-100 border border-red-400 text-red-700 text-center sm:text-left">
+        <span class="block sm:inline"><%= error %></span>
+    </div>
     <% } %>
 
+    <% if (success) { %>
+    <div class="w-full max-w-4xl mb-4 px-4 py-3 rounded bg-green-100 border border-green-400 text-green-700 text-center sm:text-left">
+        <span class="block sm:inline"><%= success %></span>
+    </div>
+    <% } %>
+
+    <!-- Course Info -->
+    <header class="w-full max-w-4xl mb-8 px-4 sm:px-0">
+        <h1 class="text-3xl font-bold text-gray-800 truncate"><%= course_name %></h1>
+        <p class="text-gray-600 mt-2 whitespace-pre-wrap"><%= descriptions %></p>
+    </header>
+
+    <!-- Navigation Buttons -->
+    <nav class="w-full max-w-4xl mb-6 flex flex-wrap gap-3 justify-center sm:justify-start px-4 sm:px-0 overflow-x-auto scrollbar-thin scrollbar-thumb-indigo-400 scrollbar-track-gray-200">
+        <button onclick="ChangeMenu('codes')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition whitespace-nowrap flex-shrink-0">
+            Code Management
+        </button>
+        <button onclick="ChangeMenu('reviews')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition whitespace-nowrap flex-shrink-0">
+            Reviews Control
+        </button>
+        <button onclick="ChangeMenu('members')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition whitespace-nowrap flex-shrink-0">
+            Members Management
+        </button>
+        <button onclick="ChangeMenu('post')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition whitespace-nowrap flex-shrink-0">
+            Create Post
+        </button>
+        <button onclick="ChangeMenu('edit_posts')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition whitespace-nowrap flex-shrink-0">
+            Edit Posts
+        </button>
+        <button onclick="ChangeMenu('manage_course')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition whitespace-nowrap flex-shrink-0">
+            Edit Course
+        </button>
+    </nav>
+
+    <!-- Main content container -->
+    <main class="w-full max-w-4xl space-y-10 px-4 sm:px-0">
+
+        <!-- Codes Section -->
+        <section id="codes" class="bg-white p-6 rounded-lg shadow-md space-y-6">
+            <h2 class="text-2xl font-semibold text-gray-800">Generate Invite Code</h2>
+
+            <form action="/moderator/course/<%= course_id %>/generate_code" method="post" class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" name="lifetime" id="lifetime" class="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+                    <label for="lifetime" class="text-gray-700 select-none">Should it be valid forever?</label>
+                </div>
+                <input type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition cursor-pointer w-full sm:w-auto" value="Generate Code" />
+            </form>
+
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Your Codes</h3>
+
+                <% if (codes.length > 0) { %>
+                <div class="overflow-x-auto rounded border border-gray-200">
+                    <table class="min-w-full bg-white border-collapse">
+                        <thead class="bg-gray-100 text-gray-700 text-left">
+                            <tr>
+                                <th class="px-4 py-2 border-b whitespace-nowrap">Code</th>
+                                <th class="px-4 py-2 border-b whitespace-nowrap">Type</th>
+                                <th class="px-4 py-2 border-b whitespace-nowrap">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for(let i = 0; i < codes.length; i++) { %>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-2 border-b text-gray-800 truncate max-w-xs"><%= codes[i].code %></td>
+                                <td class="px-4 py-2 border-b text-gray-600 whitespace-nowrap"><%= codes[i].type %></td>
+                                <td class="px-4 py-2 border-b text-gray-600 whitespace-nowrap"><a href="/moderator/course/<%= course_id %>/unactive?id=<%= codes[i].id %>" class="text-indigo-600 hover:underline font-medium">Unactive</a></td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                <% } else { %>
+                <p class="text-gray-500 italic">You don't have any codes yet.</p>
+                <% } %>
+            </div>
+        </section>
+
+        <!-- Reviews Section -->
+        <section id="reviews" class="bg-white p-6 rounded-lg shadow-md space-y-6">
+            <h2 class="text-2xl font-semibold text-gray-800">Reviews</h2>
+
+            <% if (reviews.length > 0) { %>
+            <div class="overflow-x-auto rounded border border-gray-200">
+                <table class="min-w-full bg-white border-collapse">
+                    <thead class="bg-gray-100 text-gray-700 text-left">
+                        <tr>
+                            <th class="px-4 py-2 border-b whitespace-nowrap">Reviewer Name</th>
+                            <th class="px-4 py-2 border-b whitespace-nowrap">Date</th>
+                            <th class="px-4 py-2 border-b text-center whitespace-nowrap">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for (let i = 0; i < reviews.length; i++) { %>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 border-b text-gray-800 truncate max-w-xs"><%= reviews[i].name %></td>
+                            <td class="px-4 py-2 border-b text-gray-600 whitespace-nowrap"><%= reviews[i].date %></td>
+                            <td class="px-4 py-2 border-b text-center space-x-2 whitespace-nowrap">
+                                <a href="/moderator/course/<%= course_id %>/managment?reviews_id=<%= reviews[i].id %>&choice=accept" class="text-green-600 hover:underline font-medium">Accept</a>
+                                <a href="/moderator/course/<%= course_id %>/managment?reviews_id=<%= reviews[i].id %>&choice=deny" class="text-red-600 hover:underline font-medium">Deny</a>
+                            </td>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            <% } else { %>
+            <p class="text-gray-500 italic">There is no one currently under review.</p>
+            <% } %>
+        </section>
+
+        <!-- Members Section -->
+        <section class="w-full max-w-4xl bg-white rounded-lg shadow-md p-4 sm:p-6 mt-8" id="members">
+            <h2 class="text-xl sm:text-2xl font-semibold mb-4 border-b pb-2 text-gray-700">Course Members</h2>
+
+            <% if (members && members.length > 0) { %>
+            <ul class="space-y-4">
+                <% for (let i = 0; i < members.length; i++) { %>
+                <li class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                        <div>
+                            <p class="text-gray-800 font-semibold text-sm sm:text-base"><%= members[i].name %></p>
+                            <p class="text-gray-500 text-sm">Role Type: <%= members[i].type %></p>
+                        </div>
+
+                        <% if (members[i].id !== user_id) { %>
+                        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                            <% if (members[i].type === 1) { %>
+                            <a href="/moderator/course/<%= course_id %>/promote?id=<%= members[i].id %>" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition text-sm">
+                                Promote
+                            </a>
+                            <% } else if (members[i].type === 2) { %>
+                            <a href="/moderator/course/<%= course_id %>/demote?id=<%= members[i].id %>" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition text-sm">
+                                Demote
+                            </a>
+                            <% } %>
+
+                            <a href="/moderator/course/<%= course_id %>/remove?id=<%= members[i].id %>" onclick="return confirm('Are you sure you want to remove this member?');" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition text-sm">
+                                Delete
+                            </a>
+                        </div>
+                        <% } %>
+                    </div>
+                </li>
+                <% } %>
+            </ul>
+            <% } else { %>
+            <p class="text-gray-500 italic text-sm">No members found for this course.</p>
+            <% } %>
+        </section>
+
+
+
+        <section id="post" class="bg-white p-6 rounded-lg shadow-md space-y-6">
+            <h2 class="text-2xl font-semibold text-gray-800">Create Post</h2>
+
+            <form action="/moderator/course/<%= course_id %>/addpost" method="post" class="space-y-4">
+                <input type="text" name="title" placeholder="Title" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <textarea id="editor" name="text" rows="10" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                <input type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition cursor-pointer w-full sm:w-auto" value="Create Post" />
+            </form>
+        </section>
+
+        <!-- Edit Posts Section -->
+        <section id="edit_posts" class="bg-white p-6 rounded-lg shadow-md space-y-6">
+            <h2 class="text-2xl font-semibold text-gray-800">Edit Posts</h2>
+
+            <% if (posts.length > 0) { %>
+            <div class="overflow-x-auto rounded border border-gray-200">
+                <table class="min-w-full bg-white border-collapse">
+                    <thead class="bg-gray-100 text-gray-700 text-left">
+                        <tr>
+                            <th class="px-4 py-2 border-b whitespace-nowrap">Post Title</th>
+                            <th class="px-4 py-2 border-b whitespace-nowrap">Date</th>
+                            <th class="px-4 py-2 border-b whitespace-nowrap">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for (let i = 0; i < posts.length; i++) { %>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 border-b text-gray-800 truncate max-w-xs"><%= posts[i].title %></td>
+                            <td class="px-4 py-2 border-b text-gray-600 whitespace-nowrap"><%= posts[i].date %></td>
+                            <td class="px-4 py-2 border-b whitespace-nowrap">
+                                <a href="/moderator/course/<%= course_id %>/posts/edit?id=<%= posts[i].id %>" class="text-indigo-600 hover:underline font-medium">Edit</a>
+                                <a href="/moderator/course/<%= course_id %>/delete_post?id=<%= posts[i].id %>" class="text-red-600 hover:underline font-medium">Delete</a>
+                            </td>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            <% } else { %>
+            <p class="text-gray-500 italic">No posts found.</p>
+            <% } %>
+        </section>
+
+        <div id="manage_course" class="bg-white p-6 rounded-lg shadow-md space-y-6">
+            <h2 class="text-2xl font-semibold text-gray-800">Edit Course Info</h2>
+            <form action="/moderator/course/<%= course_id %>/edit_course" method="post" class="space-y-4">
+
+                <div>
+                    <label for="name" class="block text-gray-700 font-medium mb-1">Course Name:</label>
+                    <input type="text" name="name" id="name" value="<%= course_name %>" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+
+                <div>
+                    <label for="desc" class="block text-gray-700 font-medium mb-1">Description:</label>
+                    <textarea name="desc" id="desc" rows="5" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><%= descriptions %></textarea>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="seen" name="seen" class="h-4 w-4 text-indigo-600 border-gray-300 rounded" <% if(seen === true) {%> checked <% } %> />
+                    <label for="seen" class="text-gray-700">Seen</label>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="approved" name="approved" class="h-4 w-4 text-indigo-600 border-gray-300 rounded" <% if(approved === true) {%> checked <% } %> />
+                    <label for="approved" class="text-gray-700">Approved</label>
+                </div>
+
+                <div>
+                    <input type="submit" value="Save Changes" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition cursor-pointer" />
+                </div>
+
+            </form>
+        </div>
+
+
+    </main>
+
+    <script>
+        // SimpleMDE init for markdown editors
+        var simplemde1 = new SimpleMDE({
+            element: document.getElementById("editor"),
+            spellChecker: false,
+            status: false
+        });
+
+        const start_page = "<%= start_page %>";
+        ChangeMenu(start_page);
+
+
+        document.getElementById('codes').hidden = true;
+        document.getElementById('reviews').hidden = true;
+        document.getElementById('members').hidden = true;
+        document.getElementById('post').hidden = true;
+        document.getElementById('edit_posts').hidden = true;
+        document.getElementById('manage_course').hidden = true;
+
+
+        // Menu switching function
+        function ChangeMenu(menu) {
+            document.getElementById('codes').hidden = true;
+            document.getElementById('reviews').hidden = true;
+            document.getElementById('members').hidden = true;
+            document.getElementById('post').hidden = true;
+            document.getElementById('edit_posts').hidden = true;
+            document.getElementById('manage_course').hidden = true;
+
+            document.getElementById(menu).hidden = false;
+        }
+
+        // Initially show 'codes' section only
+        ChangeMenu('codes');
+    </script>
+
 </body>
+
 </html>

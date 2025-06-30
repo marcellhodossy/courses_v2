@@ -44,11 +44,7 @@ router.post('/login', async (req, res) => {
                 res.cookie('username', user.rows[0].username);
                 res.cookie('user_id', user.rows[0].id);
 
-                if (user.rows[0].type == 1) {
-                    res.redirect('/users/dashboard');
-                } else {
-                    res.redirect('/selector')
-                }
+                res.redirect('/selector')
             } else {
                 req.session.error = "Invalid Credentials";
                 req.session.save();

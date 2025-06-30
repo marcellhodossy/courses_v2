@@ -62,7 +62,7 @@ router.post('/register', async (req, res) => {
             res.redirect('/register');
         }
 
-        const encrypted_password = hashPassword(password);
+        const encrypted_password = await hashPassword(password);
 
         const insert = await pool.query("INSERT INTO users (username, email, password, type) VALUES ($1, $2, $3, 1) RETURNING id", [username, email, encrypted_password]);
 

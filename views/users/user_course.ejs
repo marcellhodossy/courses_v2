@@ -1,86 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Slack Course - <%= course_name %></title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Slack Course - <%= course_name %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- SimpleMDE CSS és JS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css" />
-  <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+    <!-- SimpleMDE CSS és JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css" />
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 
-  <style>
-    .markdown-content :is(h1, h2, h3, p, ul, ol, pre, code, blockquote) {
-      margin-bottom: 1em;
-    }
-  </style>
+    <style>
+        .markdown-content :is(h1, h2, h3, p, ul, ol, pre, code, blockquote) {
+            margin-bottom: 1em;
+        }
+    </style>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
 
-        <a href="/users/dashboard" 
-   class="absolute top-4 left-4 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded shadow-sm transition">
-  ← Back
-</a>
+    <a href="/users/dashboard" class="absolute top-4 left-4 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded shadow-sm transition">
+        ← Back
+    </a>
 
-      <a href="/users/course/<%= course_id %>/leave"
-        class="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
-        type="button">
+    <a href="/users/course/<%= course_id %>/leave" class="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm" type="button">
         Leave
-      </a>
-      
-  <header class="w-full max-w-3xl mb-10 text-center">
-    <h1 class="text-4xl font-bold text-gray-800 mb-2"><%= course_name %></h1>
-    <p class="text-gray-600">Course ID: <%= course_id %></p>
-  </header>
+    </a>
 
-  <% if (posts.length > 0) { %>
-  <section class="w-full max-w-3xl space-y-10">
-    <% for (let i = 0; i < posts.length; i++) { %>
-    <article class="relative bg-white p-6 rounded-lg shadow">
+    <header class="w-full max-w-3xl mb-10 text-center">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2"><%= course_name %></h1>
+        <p class="text-gray-600">Course ID: <%= course_id %></p>
+    </header>
 
-      <h2 class="text-2xl font-semibold text-gray-800 mb-2"><%= posts[i].title %></h2>
+    <% if (posts.length > 0) { %>
+    <section class="w-full max-w-3xl space-y-10">
+        <% for (let i = 0; i < posts.length; i++) { %>
+        <article class="relative bg-white p-6 rounded-lg shadow">
 
-      <!-- Rejtett textarea a SimpleMDE-nek -->
-      <textarea id="mde-<%= i %>" style="display:none;"><%= posts[i].text %></textarea>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-2"><%= posts[i].title %></h2>
 
-      <!-- Markdown renderelt tartalom ide jön -->
-      <div id="rendered-<%= i %>" class="markdown-content text-gray-800 whitespace-pre-wrap"></div>
+            <!-- Rejtett textarea a SimpleMDE-nek -->
+            <textarea id="mde-<%= i %>" style="display:none;"><%= posts[i].text %></textarea>
 
-      <!-- Meta adatok -->
-      <div class="flex justify-between text-sm text-gray-500 mt-4">
-        <span>Author: <%= posts[i].author %></span>
-        <span><%= posts[i].date %></span>
-      </div>
+            <!-- Markdown renderelt tartalom ide jön -->
+            <div id="rendered-<%= i %>" class="markdown-content text-gray-800 whitespace-pre-wrap"></div>
 
-      <script>
-        (function() {
-          const ta = document.getElementById("mde-<%= i %>");
-          const simplemde = new SimpleMDE({
-            element: ta,
-            toolbar: false,
-            status: false,
-            spellChecker: false,
-            autosave: false,
-            autofocus: false,
-            forceSync: true,
-          });
+            <!-- Meta adatok -->
+            <div class="flex justify-between text-sm text-gray-500 mt-4">
+                <span>Author: <%= posts[i].author %></span>
+                <span><%= posts[i].date %></span>
+            </div>
 
-          // Rendereljük a markdown HTML-be
-          document.getElementById("rendered-<%= i %>").innerHTML = simplemde.options.previewRender(ta.value);
+            <script>
+                (function() {
+                    const ta = document.getElementById("mde-<%= i %>");
+                    const simplemde = new SimpleMDE({
+                        element: ta,
+                        toolbar: false,
+                        status: false,
+                        spellChecker: false,
+                        autosave: false,
+                        autofocus: false,
+                        forceSync: true,
+                    });
 
-          // Visszaalakítjuk a SimpleMDE textarea-t sima textarea-vá, így eltűnik az editor
-          simplemde.toTextArea();
-          ta.style.display = "none"; // Elrejtjük a textarea-t
-        })();
-      </script>
+                    // Rendereljük a markdown HTML-be
+                    document.getElementById("rendered-<%= i %>").innerHTML = simplemde.options.previewRender(ta.value);
 
-    </article>
+                    // Visszaalakítjuk a SimpleMDE textarea-t sima textarea-vá, így eltűnik az editor
+                    simplemde.toTextArea();
+                    ta.style.display = "none"; // Elrejtjük a textarea-t
+                })();
+            </script>
+
+        </article>
+        <% } %>
+    </section>
+    <% } else { %>
+    <p class="text-gray-600 text-lg italic">There are no posts available.</p>
     <% } %>
-  </section>
-  <% } else { %>
-  <p class="text-gray-600 text-lg italic">There are no posts available.</p>
-  <% } %>
 
 </body>
+
 </html>

@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const pg = require('pg');
 const {
     pool
 } = require('../../../config/postgresql.js');
@@ -9,71 +8,92 @@ const {
 } = require('../../../config/jsonwebtoken.js');
 
 router.post('/users/join/courses', async (req, res) => {
+    try {
+        const decoded = await verifyJWT(req.cookies.token);
 
-    const decoded = await verifyJWT(req.cookies.token);
+        if (req.cookies.isAuth === "true" && decoded.id > 0) {
+            if (req.body.invite_code) {
+                const code_data = await pool.query(
+                    "SELECT * FROM course_codes WHERE code = $1 AND active = true",
+                    [req.body.invite_code]
+                );
 
-    if (req.cookies.isAuth === "true" && decoded.id > 0) {
-
-        if (req.body.invite_code) {
-
-
-            const code_data = await pool.query("SELECT * FROM course_codes WHERE code = $1 AND active = true", [req.body.invite_code]);
-            const course_data = await pool.query("SELECT * FROM course_list WHERE id = $1", [code_data.rows[0].course_id]);
-
-            if (course_data.rows[0].approved === true) {
-                const check_2 = await pool.query("SELECT * FROM reviews WHERE course_id = $1 AND user_id = $2", [code_data.rows[0].course_id, decoded.id]);
-
-                if (check_2.rows.length > 0) {
-
-                    req.session.error = "You have already submitted your application. If your application is accepted by the moderators, you will be notified.";
+                if (code_data.rows.length === 0) {
+                    req.session.error = "Invalid or expired invite code.";
                     req.session.save();
-                    res.redirect('/users/dashboard');
-
-                } else {
-
-                    const insert = await pool.query("INSERT INTO reviews (course_id, user_id) VALUES ($1, $2)", [code_data.rows[0].course_id, decoded.id]);
-                    req.session.success = "You have been placed on a waiting list, if the course moderators accept your application you will be notified.";
-                    req.session.save();
-
-                    if (code_data.rows[0].lifetime === false) {
-                        await pool.query("UPDATE course_codes SET active = false WHERE id = $1", [code_data.rows[0].id]);
-                    }
-
-                    res.redirect('/users/dashboard');
+                    return res.redirect('/users/dashboard');
                 }
-            } else {
-                const insert = await pool.query("INSERT INTO courses (course_id, user_id) VALUES ($1,$2)", [code_data.rows[0].course_id, decoded.id]);
-                req.session.success = "You have successfully entered the course.";
+
+                const course_id = code_data.rows[0].course_id;
+
+                const course_data = await pool.query(
+                    "SELECT * FROM course_list WHERE id = $1",
+                    [course_id]
+                );
+
+                if (course_data.rows.length === 0 || course_data.rows[0].approved !== true) {
+                    req.session.error = "This course is not approved.";
+                    req.session.save();
+                    return res.redirect('/users/dashboard');
+                }
+
+                const check_review = await pool.query(
+                    "SELECT * FROM reviews WHERE course_id = $1 AND user_id = $2",
+                    [course_id, decoded.id]
+                );
+
+                if (check_review.rows.length > 0) {
+                    req.session.error = "You have already submitted your application.";
+                    req.session.save();
+                    return res.redirect('/users/dashboard');
+                }
+
+                const check_course = await pool.query(
+                    "SELECT * FROM courses WHERE course_id = $1 AND user_id = $2",
+                    [course_id, decoded.id]
+                );
+
+                if (check_course.rows.length > 0) {
+                    req.session.error = "You are already part of this course.";
+                    req.session.save();
+                    return res.redirect('/users/dashboard');
+                }
+
+                await pool.query(
+                    "INSERT INTO reviews (course_id, user_id) VALUES ($1, $2)",
+                    [course_id, decoded.id]
+                );
+
+                req.session.success = "You have been placed on a waiting list. If approved, you will be notified.";
                 req.session.save();
-                res.redirect('/users/dashboard');
 
-                if (code_data.rows[0].lifetime === false) {
-                    const update = await pool.query("UPDATE FROM codes course_codes SET active = false WHERE id = $1", [code_data.rows[0].id]);
+                if (!code_data.rows[0].lifetime) {
+                    await pool.query(
+                        "UPDATE course_codes SET active = false WHERE id = $1",
+                        [code_data.rows[0].id]
+                    );
                 }
+
+                return res.redirect('/users/dashboard');
+
+            } else {
+                req.session.error = "Missing invite code.";
+                req.session.save();
+                return res.redirect('/users/dashboard');
             }
 
-
-
         } else {
-            res.redirect('/users/dashboard')
+            res.clearCookie("isAuth");
+            res.clearCookie("token");
+            return res.redirect("/login");
         }
-
-
-
-
-
-    } else {
-        res.clearCookie("isAuth");
-        res.clearCookie("token");
-        res.redirect("/login");
+    } catch (err) {
+        console.error(err);
+        req.session.error = "Something went wrong. Please try again later.";
+        req.session.save();
+        return res.redirect('/users/dashboard');
     }
-
 });
 
-router.get('/users/join/courses', (req, res) => {
-
-    res.redirect('/users/dashboard');
-
-});
 
 module.exports = router;

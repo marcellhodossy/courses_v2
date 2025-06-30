@@ -10,9 +10,9 @@ const {
 
 router.get('/users/join/:id', async (req, res) => {
 
-    const type = await verifyJWT(req.cookies.token);
+    const decoded = await verifyJWT(req.cookies.token);
 
-    if (req.cookies.isAuth === "true" && type.id > 0) {
+    if (req.cookies.isAuth === "true" && decoded.id > 0) {
 
         const id = req.params.id;
 
@@ -22,20 +22,20 @@ router.get('/users/join/:id', async (req, res) => {
 
             if (results.rows[0].approved === false) {
 
-                const check = await pool.query("SELECT * FROM courses WHERE course_id = $1 AND user_id = $2", [id, req.cookies.id]);
+                const check = await pool.query("SELECT * FROM courses WHERE course_id = $1 AND user_id = $2", [id, decoded.id]);
 
                 if (check.rows.length > 0) {
                     req.session.error = "You have already joined this course.";
                     req.session.save();
                     res.redirect('/users/dashboard');
                 } else {
-                    const insert = await pool.query("INSERT INTO courses (course_id, user_id) VALUES ($1,$2)", [id, req.cookies.id]);
+                    const insert = await pool.query("INSERT INTO courses (course_id, user_id) VALUES ($1,$2)", [id, decoded.id]);
                     req.session.success = "You have successfully joined the course.";
                     req.session.save();
                     res.redirect("/users/dashboard");
                 }
             } else {
-                const check_2 = await pool.query("SELECT * FROM reviews WHERE course_id = $1 AND user_id = $2", [id, req.cookies.id]);
+                const check_2 = await pool.query("SELECT * FROM reviews WHERE course_id = $1 AND user_id = $2", [id, decoded.id]);
 
                 if (check_2.rows.length > 0) {
 
@@ -45,7 +45,7 @@ router.get('/users/join/:id', async (req, res) => {
 
                 } else {
 
-                    const insert = await pool.query("INSERT INTO reviews (course_id, user_id) VALUES ($1, $2)", [id, type.id]);
+                    const insert = await pool.query("INSERT INTO reviews (course_id, user_id) VALUES ($1, $2)", [id, decoded.id]);
                     req.session.success = "You have been placed on a waiting list, if the course moderators accept your application you will be notified.";
                     req.session.save();
                     res.redirect('/users/dashboard');

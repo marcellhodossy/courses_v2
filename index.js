@@ -51,9 +51,15 @@ const moderator_unactive = require('./routes/get/moderator/unactive.js');
 const moderator_kick = require('./routes/get/moderator/kick.js');
 const moderator_delete = require('./routes/get/moderator/delete.js');
 const moderator_edit = require('./routes/get/moderator/edit.js');
+const moderator_demote = require('./routes/get/moderator/demote.js');
+const moderator_promote = require('./routes/get/moderator/promote.js');
 const users_posts = require('./routes/get/users/user_course.js');
 const users_leave = require('./routes/get/users/leave.js');
 const selector = require('./routes/get/selector.js');
+const app_register = require('./routes/get/app_register.js');
+const settings = require('./routes/get/settings.js');
+const logout = require('./routes/get/users/logout.js');
+const moderator_edit_course = require('./routes/post/moderator/edit_course.js');
 
 const loginRoutes = require('./routes/post/default_auth/login.js');
 const registerRoutes = require('./routes/post/default_auth/register.js');
@@ -64,7 +70,9 @@ const createCourses = require('./routes/post/moderator/create.js');
 const generateCode = require('./routes/post/moderator/generatecode.js');
 const newpost = require('./routes/post/moderator/addpost.js');
 const moderator_editpost = require('./routes/post/moderator/edit_post.js');
-
+const settings_newpasswd = require('./routes/post/settings/password_change.js');
+const settings_newemail = require('./routes/post/settings/email_change.js');
+const settings_newusername = require('./routes/post/settings/username_change.js');
 
 app.use(login);
 app.use(register);
@@ -86,6 +94,11 @@ app.use(moderator_edit);
 app.use(users_posts);
 app.use(users_leave);
 app.use(selector);
+app.use(app_register);
+app.use(settings);
+app.use(logout);
+app.use(moderator_demote);
+app.use(moderator_promote);
 
 app.use(loginRoutes);
 app.use(registerRoutes);
@@ -96,6 +109,10 @@ app.use(createCourses);
 app.use(generateCode);
 app.use(newpost);
 app.use(moderator_editpost);
+app.use(settings_newpasswd);
+app.use(settings_newusername);
+app.use(settings_newemail);
+app.use(moderator_edit_course);
 
 app.listen(process.env.PORT, () => {
     console.log(`server listened: localhost:${process.env.PORT}`);
