@@ -35,19 +35,19 @@ router.post('/settings/username_change', async (req, res) => {
             } else {
                 await pool.query("UPDATE users SET username = $1 WHERE id = $2", [new_username, decoded.id]);
                 req.session.success = "Your username has been successfully changed.";
-                req.session.save();
+                await req.session.save();
                 res.cookie("username", new_username);
-                res.redirect('/settings');
+                retres.redirect('/settings');
             }
         } else {
             req.session.error = "The password is not correct."
             req.session.save();
-            res.redirect('/settings');
+            return res.redirect('/settings');
         }
     } else {
         res.clearCookie("isAuth");
         res.clearCookie("token");
-        res.redirect("/login");
+        return res.redirect("/login");
     }
 
 });

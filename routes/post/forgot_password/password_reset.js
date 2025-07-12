@@ -37,7 +37,7 @@ router.post("/password/reset/", async (req, res) => {
         } else {
             const encrypted_password = await hashPassword(password);
             const update = await pool.query("UPDATE users SET password = $1 WHERE id = $2", [encrypted_password, decoded.id]);
-            res.redirect('/password/ok/');
+            res.redirect('/login');
         }
 
     } else {

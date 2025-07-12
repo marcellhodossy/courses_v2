@@ -1,27 +1,54 @@
 const jwt = require('jsonwebtoken');
 const pg = require('pg');
-const {pool} = require('./postgresql.js');
+const {
+    pool
+} = require('./postgresql');
 
-function createJWT(id, token) {
-    return jwt.sign({id: id, token: token}, process.env.JWT_SECRET, {expiresIn: '30d'});    
+function createJWT(id, username, email, type, token_type) {
+
+    let expire = 0;
+
+    if (token_type != "login") {
+        expire = "30m";
+    } else {
+        expire = "30d";
+    }
+
+    return jwt.sign({
+        id: id,
+        username: username,
+        email: email,
+        type: type
+    }, process.env.JSONWEBTOKEN_SECRET, {
+        expiresIn: expire
+    });
 }
 
-async function validateJWT(token) {
+async function verifyJWT(token) {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-        const check = await pool.query("SELECT * FROM users WHERE id = $1 AND token_value = $2", [decoded.id, decoded.token]);
-    
-        if(check.rows.length > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+        const decoded = jwt.verify(token, process.env.JSONWEBTOKEN_SECRET);
 
-    catch {
-        return false;
+        const check = await pool.query("SELECT * FROM users WHERE id = $1", [decoded.id]);
+
+        if (check.rows.length > 0) {
+
+            return {
+                id: decoded.id,
+                type: decoded.type
+            };
+
+        } else {
+            return 0;
+
+        }
+
+
+    } catch (err) {
+        return 0;
     }
 }
 
-module.exports = {createJWT, validateJWT};
+module.exports = {
+    verifyJWT,
+    createJWT
+};
